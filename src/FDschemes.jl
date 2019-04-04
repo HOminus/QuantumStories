@@ -6,7 +6,7 @@ gr()
 
 DIM = 100
 LENGTH = 10
-PLOT_LENGTH = 6
+PLOT_LENGTH = 6 #only the interesing parts are plotted
 
 function FinitePotentialWell(x)
     if abs(x) > 1
@@ -20,7 +20,7 @@ end
 
 #Change function here to change the potential
 function Potential(x)
-    FinitePotentialWell(x)
+    HarmonicOscillator(x)
 end
 
 function Kinetic(fd)
@@ -55,7 +55,7 @@ function PlotPotential()
 end
 
 function PlotProbabilityDensity(state, energy)
-    prob_density = (DIM/LENGTH) * (abs.(state) .^2) .+ abs(energy) #rescale to density!
+    prob_density = (DIM/LENGTH) * (abs.(state) .^2) .+ energy #rescale to density!
     plot!([-PLOT_LENGTH/2, PLOT_LENGTH/2], [energy, energy], label="") #Draw energy offset
     lb = trunc(Int, DIM/2 - PLOT_LENGTH/LENGTH * DIM/2) + 1
     ub = trunc(Int, DIM/2 + PLOT_LENGTH/LENGTH * DIM/2)
@@ -68,8 +68,9 @@ PlotProbabilityDensity(egs.vectors[:, 1], egs.values[1])
 PlotProbabilityDensity(egs.vectors[:, 2], egs.values[2])
 PlotProbabilityDensity(egs.vectors[:, 3], egs.values[3])
 PlotProbabilityDensity(egs.vectors[:, 4], egs.values[4])
-
-savefig("img/FPW_fd.png")
+display(plt)
 
 read(stdin, Char)
+
+savefig("img/HO_fd.png")
 
