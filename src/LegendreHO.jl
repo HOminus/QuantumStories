@@ -141,9 +141,9 @@ gl_abscissae = [
 
 
 N = length(gl_abscissae)
-DIM = 50
+DIM = 62
 LENGTH = 10
-PLOT_LENGTH = 2
+PLOT_LENGTH = 6
 
 function Potential(x)
     x^2
@@ -175,11 +175,10 @@ end
 
 
 V = zeros(Float32, (DIM, DIM))
-
 for m = 1:DIM
     for n = 1:DIM
         for i = 1:N
-            V[m, n] += gl_weights[i] * (LENGTH/2 * gl_abscissae[i])^2 * lt.Tables[i].Values[m] * lt.Tables[i].Values[n] 
+            V[m, n] += gl_weights[i] * Potential(LENGTH/2 * gl_abscissae[i]) * lt.Tables[i].Values[m] * lt.Tables[i].Values[n] 
         end
         V[m, n] *= LENGTH/2
     end
@@ -196,11 +195,35 @@ for m = 1:DIM
 end
 
 #Actually not really the hamiltonian but ehhh
-#eigenstates are given as coefficiants to the lagrange polynomials
 Hamiltonian = 0.5 * (T + V)
 
-#egs = eigen(Hamiltonian)
-print(stdout, sort(eigvals(Hamiltonian, S)))
+egs = eigen(Hamiltonian, S)
 
-#TODO: Plot probability densities
+function PlotPotential()
+    return plot(range(-PLOT_LENGTH/2, PLOT_LENGTH/2, length = DIM),
+                [Potential((-PLOT_LENGTH/2 + (i - 1)* PLOT_LENGTH/(DIM - 1))) for i=1:DIM], label="Potential")
+end
 
+function EvaluateState(state, x)
+    v = sf_legendre_Pl_array(length(state) - 1, x)
+    return foldl(+, state .* v)
+end
+
+function PlotProbabilityDensity(state, energy)
+    x = range(-PLOT_LENGTH/2, PLOT_LENGTH/2, length=60)
+    psi = [EvaluateState(state, 2/PLOT_LENGTH * v) for v=x]
+    prob_density = abs.(psi) .^2 .+ energy
+    plot!([-PLOT_LENGTH/2, PLOT_LENGTH/2], [energy, energy], label="")
+    plot!(x, prob_density, label="")
+end
+
+plt = PlotPotential()
+PlotProbabilityDensity(egs.vectors[:, 1], egs.values[1])
+PlotProbabilityDensity(egs.vectors[:, 2], egs.values[2])
+PlotProbabilityDensity(egs.vectors[:, 3], egs.values[3])
+PlotProbabilityDensity(egs.vectors[:, 4], egs.values[4])
+display(plt)
+
+read(stdin, Char)
+
+savefig("img/HO_leg.png")
