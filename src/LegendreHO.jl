@@ -194,7 +194,6 @@ for m = 1:DIM
     end
 end
 
-#Actually not really the hamiltonian but ehhh
 Hamiltonian = 0.5 * (T + V)
 
 egs = eigen(Hamiltonian, S)
